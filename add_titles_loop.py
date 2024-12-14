@@ -1,22 +1,22 @@
 # Создаём словарь
-note = {}
+some_note = {}
 
 # Запрашиваем основные данные у пользователя
-note['username'] = input("Введите имя пользователя: ")
-note['content'] = input("Введите описание заметки: ")
-note['status'] = input("Введите статус заметки: ")
-note['created_date'] = input("Введите дату создания заметки (день-месяц-год): ")
-note['issue_date'] = input("Введите дату истчения заметки (день-месяц-год): ")
+some_note['username'] = input("Введите имя пользователя: ")
+some_note['content'] = input("Введите описание заметки: ")
+some_note['status'] = input("Введите статус заметки: ")
+some_note['created_date'] = input("Введите дату создания заметки (день-месяц-год): ")
+some_note['issue_date'] = input("Введите дату истчения заметки (день-месяц-год): ")
 
 # Добавляем заголовки
-note['titles'] = []
+some_note['titles'] = []
 new_title = input("Введите новый заголовок (или оставьте строку ввода пустой для завершения): ")
 while new_title != '':
-    if new_title in note['titles']:
+    if new_title in some_note['titles']:
         new_title = input("Данный заголовок уже существует, введите другой "
                           "(или оставьте строку ввода пустой для завершения): ")
     else:
-        note['titles'].append(new_title)
+        some_note['titles'].append(new_title)
         print("Добавлен нлвый заголовок: ", new_title)
         new_title = input("Введите новый заголовок (или оставьте строку ввода пустой для завершения): ")
 
@@ -25,10 +25,10 @@ print('Вы закончили ввод заголовков')
 
 # Вывод информации о заметке
 print('\nИнформация о заметке:')
-for key, value in note.items():
+for key, value in some_note.items():
     if key != 'titles':
         print(f"\t{key.capitalize()}: {value}")
     else:
         print("Заголовки заметки:")
-        for title in note['titles']:
+        for title in some_note['titles']:
             print(f"\t- {title}")
