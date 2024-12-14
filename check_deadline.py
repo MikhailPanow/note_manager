@@ -1,14 +1,15 @@
 '''ИНИЦИАЛИЗАЦИЯ'''
+
 # Подключение datetime для работы с датами
 import datetime
 
 # Функция для запроса данных от пользователя
-def set_info():
-    global some_note
-    some_note['username'] = input("Введите имя пользователя: ")
-    some_note['content'] = input("Введите описание заметки: ")
-    some_note['created_date'] = input("Введите дату создания заметки (день-месяц-год): ")
-    some_note['issue_date'] = input("Введите дату истчения заметки (день-месяц-год): ")
+def set_info(note):
+    note['username'] = input("Введите имя пользователя: ")
+    note['content'] = input("Введите описание заметки: ")
+    note['created_date'] = input("Введите дату создания заметки (день-месяц-год): ")
+    note['issue_date'] = input("Введите дату истчения заметки (день-месяц-год): ")
+    return note
 
 
 # Функция ввода заголовков
@@ -74,14 +75,13 @@ def change_status(note):
     return note
 
 # Вывод информации
-def get_info():
-    global some_note
+def get_info(note):
     print('\nИнформация о заметке:')
-    for key, value in some_note.items():
+    for key, value in note.items():
         if key != 'titles':
             print(f"\t{key.capitalize()}: {value}")
     print("Заголовки заметки:")
-    for title in some_note['titles']:
+    for title in note['titles']:
         print("\t- ", title)
 
 # Создаём словарь
@@ -91,7 +91,7 @@ some_note = {}
 '''ОСНОВНОЙ БЛОК КОДА'''
 
 # Запрашиваем информацию у пользователя
-set_info()
+some_note = set_info(some_note)
 
 # Добавляем заголовки
 some_note['titles'] = []
@@ -107,4 +107,4 @@ some_note['status'] = first_status()
 some_note = change_status(some_note)
 
 # Выводим информацию о заметке
-get_info()
+get_info(some_note)
