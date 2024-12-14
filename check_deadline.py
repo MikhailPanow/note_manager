@@ -3,6 +3,20 @@
 # Подключение datetime для работы с датами
 import datetime
 
+# Функция форматирования даты
+def format_date(note):
+    issue_date = note['issue_date']
+    if issue_date[:4].isdigit():
+        year = int(issue_date[:4])
+        month = int(issue_date[5:7])
+        day = int(issue_date[8:10])
+    else:
+        year = int(issue_date[6:10])
+        month = int(issue_date[3:5])
+        day = int(issue_date[:2])
+    issue_date = datetime.date(year, month, day)
+    return issue_date
+
 # Функция для запроса данных от пользователя
 def set_info(note):
     note['username'] = input("Введите имя пользователя: ")
@@ -92,6 +106,10 @@ some_note = {}
 
 # Запрашиваем информацию у пользователя
 some_note = set_info(some_note)
+
+# Форматирование даты (проверка)
+some_note['issue_date'] = format_date(some_note)
+print(some_note['issue_date'])
 
 # Добавляем заголовки
 some_note['titles'] = []
