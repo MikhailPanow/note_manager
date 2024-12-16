@@ -3,6 +3,19 @@
 # Подключение datetime для работы с датами
 import datetime
 
+# Функция подписи дней
+def days_write(days):
+    try:
+        if 11 <= int(days[-3:]) <= 19:
+            return 'дней'
+    except IndexError:
+        if 2 <= int(days[-1]) <= 4:
+            return 'дня'
+        elif int(days[-1]) == 1:
+            return 'день'
+        else:
+            return 'дней'
+
 # Функция ввода даты от пользователя в корректном виде
 def set_issue_date(note):
     issue_date = input('Введите дату истечения заметки в формате ГГГГ-ММ-ДД или ДД-ММ-ГГГГ: ').split('-')
@@ -34,6 +47,26 @@ def set_issue_date(note):
         return False
     note['issue_date'] = issue_date.date()
     return True
+
+# Проверка дедлайна
+def check_deadline(note):
+    issue_date = note['issue_date']
+    created_date = note['created_date']
+    deadline_delta = str((issue_date - created_date).days)
+    if deadline_delta > '2':
+        print(f'\t- До дедлайна {deadline_delta} {days_write(deadline_delta)}')
+    elif deadline_delta == '2':
+        print('\t- Дедлайн послезавтра')
+    elif deadline_delta == '1':
+        print('\t- Дедлайн завтра')
+    elif deadline_delta == '0':
+        print('\t- Дедлайн сегодня!')
+    elif deadline_delta == '-1':
+        print('\t- Дедлайн был вчера!')
+    elif deadline_delta == '-2':
+        print('\t- Дедлайн был позавчера!')
+    else:
+        print(f'\t- Дедлайн был {deadline_delta[1:]} {days_write(deadline_delta)} назад!')
 
 # Функция для запроса данных от пользователя
 def set_info(note):
@@ -113,6 +146,8 @@ def get_info(note):
     print("\tЗаголовки заметки:")
     for title in note['titles']:
         print("\t- ", title)
+    print("\tДедлайн:")
+    check_deadline(note)
 
 # Создаём словарь
 some_note = {}
