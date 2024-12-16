@@ -3,26 +3,42 @@
 # Подключение datetime для работы с датами
 import datetime
 
-# Функция форматирования даты
-def format_date(note):
-    issue_date = note['issue_date']
-    if issue_date[:4].isdigit():
-        year = int(issue_date[:4])
-        month = int(issue_date[5:7])
-        day = int(issue_date[8:10])
+# Функция ввода даты от пользователя в корректном виде
+def set_issue_date(note):
+    issue_date = input('Введите дату истечения заметки в формате ГГГГ-ММ-ДД или ДД-ММ-ГГГГ: ').split('-')
+    if len(issue_date) == 3:
+        for date in issue_date:
+            if not date.isdigit():
+                return False
+        if len(issue_date[1]) == len(issue_date[2]) == 2:
+            if len(issue_date[0]) == 4:
+                issue_date = '-'.join(issue_date)
+                try:
+                    issue_date = datetime.datetime.strptime(issue_date, '%Y-%m-%d')
+                except ValueError:
+                    return False
+            else:
+                return False
+        elif len(issue_date[0]) == len(issue_date[1]) == 2:
+            if len(issue_date[2]) == 4:
+                issue_date = '-'.join(issue_date)
+                try:
+                    issue_date = datetime.datetime.strptime(issue_date, '%d-%m-%Y')
+                except ValueError:
+                    return False
+            else:
+                return False
+        else:
+            return False
     else:
-        year = int(issue_date[6:10])
-        month = int(issue_date[3:5])
-        day = int(issue_date[:2])
-    issue_date = datetime.date(year, month, day)
-    return issue_date
+        return False
+    note['issue_date'] = issue_date.date()
+    return True
 
 # Функция для запроса данных от пользователя
 def set_info(note):
     note['username'] = input("Введите имя пользователя: ")
     note['content'] = input("Введите описание заметки: ")
-    note['created_date'] = input("Введите дату создания заметки (день-месяц-год): ")
-    note['issue_date'] = input("Введите дату истчения заметки (день-месяц-год): ")
     return note
 
 
@@ -94,7 +110,7 @@ def get_info(note):
     for key, value in note.items():
         if key != 'titles':
             print(f"\t{key.capitalize()}: {value}")
-    print("Заголовки заметки:")
+    print("\tЗаголовки заметки:")
     for title in note['titles']:
         print("\t- ", title)
 
@@ -104,25 +120,18 @@ some_note = {}
 
 '''ОСНОВНОЙ БЛОК КОДА'''
 
-# Запрашиваем информацию у пользователя
-some_note = set_info(some_note)
+# Запрашиваем основную информацию у пользователя
+set_info(some_note)
 
-# Форматирование даты (проверка)
-some_note['issue_date'] = format_date(some_note)
-print(some_note['issue_date'])
+# Запрашиваем циклично дату у пользователя, пока она не будет корректной
+while not set_issue_date(some_note):
+    print('Повторите ввод')
 
-# Добавляем заголовки
-some_note['titles'] = []
-some_note['titles'] += add_titles()
+# Запись сегодняшней даты
+some_note['created_date'] = datetime.date.today()
 
-# Оповещение пользователя об окончании добавления заголовков
-print('Вы закончили ввод заголовков')
+# Запись заголовков
+some_note['titles'] = add_titles()
 
-# Первичный запрос статуса у пользователя
-some_note['status'] = first_status()
-
-# Цикличный запрос на изменение статуса
-some_note = change_status(some_note)
-
-# Выводим информацию о заметке
+# Вывод информации
 get_info(some_note)
