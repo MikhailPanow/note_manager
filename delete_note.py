@@ -6,10 +6,18 @@ import datetime
 # Глобальная переменная списка записок
 note_saver = {}
 
-# Шлобальная переменная ID
+# Глобальная переменная ID
 note_id = 1
 
-# Функция подписи дней
+'''ПОДПИСЬ ДНЕЙ
+
+Создана для корректной подписи количества дней
+
+   1. Проверка, если число заканчивается на 11-19
+      1.1 Проверяем длину для избежания IndexError
+      1.2 Проверяем диапазон
+   2. Проверка, если число заканчивается на 0-9'''
+
 def days_write(days):
     if len(days) >= 2:
         if 11 <= int(days[-3:]) <= 19:
@@ -28,30 +36,19 @@ def set_issue_date(note):
         for date in issue_date:
             if not date.isdigit():
                 return False
-        if len(issue_date[1]) == len(issue_date[2]) == 2:
-            if len(issue_date[0]) == 4:
-                issue_date = '-'.join(issue_date)
-                try:
-                    issue_date = datetime.datetime.strptime(issue_date, '%Y-%m-%d')
-                except ValueError:
-                    return False
-            else:
-                return False
-        elif len(issue_date[0]) == len(issue_date[1]) == 2:
-            if len(issue_date[2]) == 4:
-                issue_date = '-'.join(issue_date)
-                try:
-                    issue_date = datetime.datetime.strptime(issue_date, '%d-%m-%Y')
-                except ValueError:
-                    return False
-            else:
-                return False
+        if (len(issue_date[1]) == len(issue_date[2]) == 2) and (len(issue_date[0]) == 4):
+            date_format = '%y-%m-%d'
+        elif (len(issue_date[0]) == len(issue_date[1]) == 2) and (len(issue_date[2]) == 4):
+            date_format = '%d-%m-%y'
         else:
             return False
-    else:
-        return False
-    note['issue_date'] = issue_date.date()
-    return True
+        issue_date = '-'.join(issue_date)
+        try:
+            note['issue_date'] = datetime.datetime.strptime(issue_date, date_format).date()
+            return True
+        except ValueError:
+            return False
+    return False
 
 # Проверка дедлайна
 def check_deadline(note):
