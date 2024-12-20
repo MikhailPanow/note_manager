@@ -9,15 +9,7 @@ note_saver = {}
 # Глобальная переменная ID
 note_id = 1
 
-'''ПОДПИСЬ ДНЕЙ
-
-Создана для корректной подписи количества дней
-
-   1. Проверка, если число заканчивается на 11-19
-      1.1 Проверяем длину для избежания IndexError
-      1.2 Проверяем диапазон
-   2. Проверка, если число заканчивается на 0-9'''
-
+# Функция подписи дней
 def days_write(days):
     if len(days) >= 2:
         if 11 <= int(days[-3:]) <= 19:
@@ -78,7 +70,7 @@ def set_info(note):
 
 
 # Функция ввода заголовков
-def add_titles():
+def add_titles(note):
     titles = []
     new_title = input("Введите новый заголовок (или оставьте строку ввода пустой для завершения): ")
     while new_title != '':
@@ -89,55 +81,48 @@ def add_titles():
             titles.append(new_title)
             print("Добавлен новый заголовок: ", new_title)
             new_title = input("Введите новый заголовок (или оставьте строку ввода пустой для завершения): ")
-    return titles
+    note['titles'] = titles
 
 # Функция первичного ввода статуса
 def first_status():
-    statuses = ['1', '2', '3', 'выполнено', 'отложено', 'в процессе']
+    statuses = ['1', '2', '3', 'ВЫПОЛНЕНО', 'ОТЛОЖЕНО', 'В ПРОЦЕССЕ']
     status = input(f'Введите номер статус или наберите его текстом:\n'
                    f'\t{statuses[0]}: {statuses[3].upper()}\n'
                    f'\t{statuses[1]}: {statuses[4].upper()}\n'
                    f'\t{statuses[2]}: {statuses[5].upper()}\n')
-    while status not in statuses:
+    while status.upper() not in statuses:
         status = input('Введено некорректное значение, повторите ввод: ')
     if status.isdigit():
         print(f'Статус заметки изменён на {statuses[int(status) + 2].upper()}')
         return statuses[int(status) + 2]
     else:
-        print(f'Статус заметки изменён на {status}')
+        print(f'Статус заметки изменён на {status.upper()}')
         return status
 
 # Функция замены статуса
 def change_status(note):
     statuses = ['1', '2', '3', 'ВЫПОЛНЕНО', 'ОТЛОЖЕНО', 'В ПРОЦЕССЕ']
     status = note['status']
-    answer = input("Хотите изменить статус заметки? Введите Y (да) или N (нет): ")
-    while answer.upper() != "N":
-        while answer.upper() not in ['Y', 'N']:  # Проверка на корректность
+    answer = input("Хотите изменить статус заметки? (Да/Нет): ")
+    while answer.upper() != "НЕТ":
+        while answer.upper() not in ['ДА', 'НЕТ']:  # Проверка на корректность
             answer = input("Введено некорректное значение, повторите ввод: ")
-            if answer.upper() == 'N':
-                print(f'Вы решили не изменять статус {status.upper()}')
-                return note
-        if answer.upper() == 'Y':
-            status = input(f'Введите номер статус или наберите его текстом:\n'
-                           f'\t{statuses[0]}: {statuses[3].upper()}\n'
-                           f'\t{statuses[1]}: {statuses[4].upper()}\n'
-                           f'\t{statuses[2]}: {statuses[5].upper()}\n')
-
-            # Проверка на корректность
+        if answer.upper() == 'НЕТ':
+            print(f'Вы решили не изменять статус {status.upper()}')
+        else:
+            status = input(f'Введите номер статуса или наберите его текстом:\n'
+                           f'\t{statuses[0]}: {statuses[3]}\n'
+                           f'\t{statuses[1]}: {statuses[4]}\n'
+                           f'\t{statuses[2]}: {statuses[5]}\n')
             while status.upper() not in statuses:
-                status = input("Введено некорректное значение. Введите число в диапозоне 1-3 или статус целиком: ")
-
-            # Изменяем статус
+                status = input("Введено некорректное значение. Введите число в диапазоне 1-3 или статус целиком: ")
             if status.isdigit():
                 print(f'Статус успешно изменён на {statuses[int(status) + 2].upper()}')
                 status = statuses[int(status) + 2]
             else:
                 print(f'Статус успешно изменён на {status.upper()}')
-
         answer = input("Хотите изменить статус заметки? Введите Y (да) или N (нет): ")
     note['status'] = status
-    return note
 
 # Вывод информации
 def get_info(note):
@@ -154,7 +139,7 @@ def create_note():
     new_note = {}
     set_info(new_note)
     new_note['created_date'] = datetime.date.today()
-    new_note['titles'] = add_titles()
+    add_titles(new_note)
     while not set_issue_date(new_note):
         print('Дата введена некорректно, повторите ввод')
     return new_note
