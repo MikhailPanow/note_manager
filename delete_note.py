@@ -148,7 +148,7 @@ def save_note(new_note):
     global note_saver, note_id
     answer_for_save = input('Хотите сохранить заметку? (Да/Нет): ')
     if answer_for_save.upper() == 'ДА':
-        if new_note in note_saver:
+        if new_note in note_saver.values():
             answer_for_save = input('Такая заметка уже есть. Вы точно хотите её сохранить? (Да/Нет): ')
             if answer_for_save.upper() == 'ДА':
                 note_saver[str(note_id)] = new_note
@@ -179,7 +179,7 @@ def get_notes():
 # Функция удаления заметки
 def delete_note():
     global note_saver
-    delete_accept = False
+    delete_list_id = []
     answer_for_delete = input('Выберите критерий, по которому будете производить удаление\n'
                               '\t1. Пользователь\n'
                               '\t2. Заголовок\n'
@@ -190,21 +190,22 @@ def delete_note():
         username = input('Введите имя пользователя, заметки которого хотите удалить: ')
         for ID, note in note_saver:
             if note['username'] == username:
+                delete_list_id.append(ID)
+        if delete_list_id:
+            for ID in delete_list_id:
                 del note_saver[ID]
-                delete_accept = True
-        if delete_accept:
             print(f'Все заметки с именем {username} были удалены')
             print('Список оставшихся заметок:')
-            get_notes()
         else:
             print(f'Нет заметок с именем {username}')
     else:
         title = input('Введите заголовок заметки(-ок), которую(-ые) хотите удалить: ')
         for ID, note in note_saver:
             if title in note['titles']:
+                delete_list_id.append(ID)
+        if delete_list_id:
+            for ID in delete_list_id:
                 del note_saver[ID]
-                delete_accept = True
-        if delete_accept:
             print(f'Все заметки с заголовком {title} были удалены')
             print('Список оставшихся заметок:')
             get_notes()

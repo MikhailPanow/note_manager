@@ -18,52 +18,34 @@ def days_write(days):
 
 # Функция ввода даты от пользователя в корректном виде
 def set_issue_date(note):
-    issue_date = input('Введите дату истечения заметки в формате ГГГГ-ММ-ДД или ДД-ММ-ГГГГ: ').split('-')
-    if len(issue_date) == 3:
-        for date in issue_date:
-            if not date.isdigit():
-                return False
-        if len(issue_date[1]) == len(issue_date[2]) == 2:
-            if len(issue_date[0]) == 4:
-                issue_date = '-'.join(issue_date)
-                try:
-                    issue_date = datetime.datetime.strptime(issue_date, '%Y-%m-%d')
-                except ValueError:
-                    return False
-            else:
-                return False
-        elif len(issue_date[0]) == len(issue_date[1]) == 2:
-            if len(issue_date[2]) == 4:
-                issue_date = '-'.join(issue_date)
-                try:
-                    issue_date = datetime.datetime.strptime(issue_date, '%d-%m-%Y')
-                except ValueError:
-                    return False
-            else:
-                return False
-        else:
-            return False
-    else:
-        return False
-    note['issue_date'] = issue_date.date()
-    return True
+    issue_date = input('Введите дату истечения заметки в формате ГГГГ-ММ-ДД или ДД-ММ-ГГГГ: ')
+    try:
+        issue_date = datetime.datetime.strptime(issue_date, '%d-%m-%Y').date()
+        note['issue_date'] = issue_date
+        return True
+    except ValueError:
+        try:
+            issue_date = datetime.datetime.strptime(issue_date, '%Y-%m-%d').date()
+            note['issue_date'] = issue_date
+        except ValueError:
+            print('Неверно введённый формат даты, повторите ввод')
 
 # Проверка дедлайна
 def check_deadline(note):
     issue_date = note['issue_date']
     created_date = note['created_date']
-    deadline_delta = str((issue_date - created_date).days)
-    if deadline_delta > '2':
+    deadline_delta = (issue_date - created_date).days
+    if deadline_delta > 2:
         print(f'\t- До дедлайна {deadline_delta} {days_write(deadline_delta)}')
-    elif deadline_delta == '2':
+    elif deadline_delta == 2:
         print('\t- Дедлайн послезавтра')
-    elif deadline_delta == '1':
+    elif deadline_delta == 1:
         print('\t- Дедлайн завтра')
-    elif deadline_delta == '0':
+    elif deadline_delta == 0:
         print('\t- Дедлайн сегодня!')
-    elif deadline_delta == '-1':
+    elif deadline_delta == -1:
         print('\t- Дедлайн был вчера!')
-    elif deadline_delta == '-2':
+    elif deadline_delta == -2:
         print('\t- Дедлайн был позавчера!')
     else:
         print(f'\t- Дедлайн был {deadline_delta[1:]} {days_write(deadline_delta)} назад!')
