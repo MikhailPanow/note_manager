@@ -58,7 +58,7 @@ def set_info(note):
 
 
 # Функция ввода заголовков
-def add_titles():
+def add_titles(note):
     titles = []
     new_title = input("Введите новый заголовок (или оставьте строку ввода пустой для завершения): ")
     while new_title != '':
@@ -69,7 +69,7 @@ def add_titles():
             titles.append(new_title)
             print("Добавлен новый заголовок: ", new_title)
             new_title = input("Введите новый заголовок (или оставьте строку ввода пустой для завершения): ")
-    return titles
+    note['titles'] = titles
 
 # Функция первичного ввода статуса
 def first_status():

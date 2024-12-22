@@ -23,41 +23,34 @@ def days_write(days):
 
 # Функция ввода даты от пользователя в корректном виде
 def set_issue_date(note):
-    issue_date = input('Введите дату истечения заметки в формате ГГГГ-ММ-ДД или ДД-ММ-ГГГГ: ').split('-')
-    if len(issue_date) == 3:
-        for date in issue_date:
-            if not date.isdigit():
-                return False
-        if (len(issue_date[1]) == len(issue_date[2]) == 2) and (len(issue_date[0]) == 4):
-            date_format = '%y-%m-%d'
-        elif (len(issue_date[0]) == len(issue_date[1]) == 2) and (len(issue_date[2]) == 4):
-            date_format = '%d-%m-%y'
-        else:
-            return False
-        issue_date = '-'.join(issue_date)
+    issue_date = input('Введите дату истечения заметки в формате ГГГГ-ММ-ДД или ДД-ММ-ГГГГ: ')
+    try:
+        issue_date = datetime.datetime.strptime(issue_date, '%d-%m-%Y').date()
+        note['issue_date'] = issue_date
+        return True
+    except ValueError:
         try:
-            note['issue_date'] = datetime.datetime.strptime(issue_date, date_format).date()
-            return True
+            issue_date = datetime.datetime.strptime(issue_date, '%Y-%m-%d').date()
+            note['issue_date'] = issue_date
         except ValueError:
-            return False
-    return False
+            print('Неверно введённый формат даты, повторите ввод')
 
 # Проверка дедлайна
 def check_deadline(note):
     issue_date = note['issue_date']
     created_date = note['created_date']
-    deadline_delta = str((issue_date - created_date).days)
-    if deadline_delta > '2':
+    deadline_delta = (issue_date - created_date).days
+    if deadline_delta > 2:
         print(f'\t- До дедлайна {deadline_delta} {days_write(deadline_delta)}')
-    elif deadline_delta == '2':
+    elif deadline_delta == 2:
         print('\t- Дедлайн послезавтра')
-    elif deadline_delta == '1':
+    elif deadline_delta == 1:
         print('\t- Дедлайн завтра')
-    elif deadline_delta == '0':
+    elif deadline_delta == 0:
         print('\t- Дедлайн сегодня!')
-    elif deadline_delta == '-1':
+    elif deadline_delta == -1:
         print('\t- Дедлайн был вчера!')
-    elif deadline_delta == '-2':
+    elif deadline_delta == -2:
         print('\t- Дедлайн был позавчера!')
     else:
         print(f'\t- Дедлайн был {deadline_delta[1:]} {days_write(deadline_delta)} назад!')
@@ -84,7 +77,7 @@ def add_titles(note):
     note['titles'] = titles
 
 # Функция первичного ввода статуса
-def first_status():
+def first_status(note):
     statuses = ['1', '2', '3', 'ВЫПОЛНЕНО', 'ОТЛОЖЕНО', 'В ПРОЦЕССЕ']
     status = input(f'Введите номер статус или наберите его текстом:\n'
                    f'\t{statuses[0]}: {statuses[3].upper()}\n'
@@ -94,10 +87,10 @@ def first_status():
         status = input('Введено некорректное значение, повторите ввод: ')
     if status.isdigit():
         print(f'Статус заметки изменён на {statuses[int(status) + 2].upper()}')
-        return statuses[int(status) + 2]
+        note['status'] = statuses[int(status) + 2]
     else:
         print(f'Статус заметки изменён на {status.upper()}')
-        return status
+        note['status'] = status
 
 # Функция замены статуса
 def change_status(note):
@@ -142,6 +135,7 @@ def create_note():
     add_titles(new_note)
     while not set_issue_date(new_note):
         print('Дата введена некорректно, повторите ввод')
+    first_status(new_note)
     return new_note
 
 def save_note(new_note):
@@ -188,7 +182,7 @@ def delete_note():
         answer_for_delete = input('Введен некорректный ответ, повторите ввод: ')
     if answer_for_delete.upper() in ['1', 'ПОЛЬЗОВАТЕЛЬ']:
         username = input('Введите имя пользователя, заметки которого хотите удалить: ')
-        for ID, note in note_saver:
+        for ID, note in note_saver.items():
             if note['username'] == username:
                 delete_list_id.append(ID)
         if delete_list_id:
@@ -230,13 +224,14 @@ while answer_for_create.upper() != "НЕТ":
         answer_for_remove = input('Введено некорректное значение, повторите ввод: ')
     if answer_for_remove.upper() == 'ДА':
         delete_note()
-        print('Список сохраненных заметок:')
         get_notes()
     answer_for_info = input('Хотите просмотреть заметки? (Да/Нет): ')
     while answer_for_info.upper() not in ['ДА', 'НЕТ']:
         answer_for_info = input('Введено некорректное значение, повторите ввод: ')
     if answer_for_info.upper() == 'ДА':
-        print('Список сохраненных заметок:')
         get_notes()
+    answer_for_status = input('Хотите изменить статус заметки? (Да/Нет): ')
+    while answer_for_status.upper() not in ['ДА', 'НЕТ']:
+        answer_for_status = input('Введено некорректное значение, повторите ввод: ')
     answer_for_create = input('Хотите создать новую заметку? (Да/Нет): ')
 print('До новых встреч!')
