@@ -185,11 +185,13 @@ def save_note(new_note):
             print('Заметка не была сохранена')
 
 # Функция вывода заметок
-def get_notes():
-    global note_saver
-    for ID, note in note_saver.items():
+def display_notes(note_dict):
+    for ID, note in note_dict.items():
         print(f'Заметка #{ID}')
         get_info(note)
+        print('-' * 20)
+    if not note_dict:
+        print('У вас нет сохранённых заметок')
 
 # Функция удаления заметки
 def delete_note():
@@ -210,7 +212,7 @@ def delete_note():
                 del note_saver[ID]
             print(f'Все заметки с именем {username} были удалены')
             print('Список оставшихся заметок:')
-            get_notes()
+            display_notes(note_saver)
         else:
             print(f'Нет заметок с именем {username}')
     else:
@@ -223,7 +225,7 @@ def delete_note():
                 del note_saver[ID]
             print(f'Все заметки с заголовком {title} были удалены')
             print('Список оставшихся заметок:')
-            get_notes()
+            display_notes(note_saver)
         else:
             print(f'Нет заметок с заголовком {title}')
 
@@ -244,11 +246,11 @@ while answer_for_create.upper() != "НЕТ":
     if answer_for_remove.upper() == 'ДА':
         delete_note()
         print('Список сохраненных заметок:')
-        get_notes()
+        display_notes(note_saver)
     answer_for_info = input('Хотите просмотреть заметки? (Да/Нет): ')
     check_answer(['ДА', 'НЕТ'], answer_for_info)
     if answer_for_info.upper() == 'ДА':
         print('Список сохраненных заметок:')
-        get_notes()
+        display_notes(note_saver)
     answer_for_create = input('Хотите создать новую заметку? (Да/Нет): ')
 print('До новых встреч!')
