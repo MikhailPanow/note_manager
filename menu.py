@@ -3,14 +3,21 @@
 # Подключение datetime для работы с датами
 import datetime
 
-# Глобальная переменная списка записок
+# Глобальная переменная словаря записок (ID(ключ):some_note(значение))
 note_saver = {}
 
 # Глобальная переменная ID
 note_id = 1
 
 # Обновление заметки
-def update_note(note):
+def update_note():
+    global note_saver
+    display_notes(note_saver)
+    if not note_saver:
+        return
+    note_number = input('Введите номер заметки, которую хотите изменить: ')
+    note_number = check_answer(list(note_saver.keys()), note_number)
+    note = note_saver[note_number]
     print('Текущие данные заметки: ')
     get_info(note)
     changes = ['1', '2', '3', '4', '5',
@@ -18,13 +25,13 @@ def update_note(note):
                'ОПИСАНИЕ', 'СТАТУС ЗАМЕТКИ',
                'ДЕДЛАЙН']
     change = input('Выберите, что вы хотите изменить:\n'
-          '\t1. Имя пользователя'
-          '\t2. Заголовки'
-          '\t3. Описание'
-          '\t4. Статус заметки'
-          '\t5. Дедлайн'
+          '\t1. Имя пользователя\n'
+          '\t2. Заголовки\n'
+          '\t3. Описание\n'
+          '\t4. Статус заметки\n'
+          '\t5. Дедлайн\n'
           'Введите номер пункта или пункт целиком: ')
-    check_answer(changes, change)
+    change = check_answer(changes, change)
     if change.upper() in ['1', 'ПОЛЬЗОВАТЕЛЬ']:
         new_username = input('Введите новое имя пользователя: ')
         note['username'] = new_username
@@ -42,6 +49,7 @@ def update_note(note):
 def check_answer(answer_list, answer):
     while answer.upper() not in answer_list:
         answer = input('Введено некорректное значение, повторите ввод: ')
+    return answer
 
 # Функция подписи дней
 def days_write(days):
@@ -115,7 +123,7 @@ def add_titles(note):
 def set_status(note):
     answer = input("Хотите изменить статус заметки? (Да/Нет): ")
     while answer.upper() != "НЕТ":
-        check_answer(answer_list=['ДА', 'НЕТ'], answer=answer)
+        answer = check_answer(answer_list=['ДА', 'НЕТ'], answer=answer)
         if answer.upper() == 'НЕТ':
             break
         else:
@@ -124,7 +132,7 @@ def set_status(note):
                            f'\t{statuses[0]}: {statuses[3].upper()}\n'
                            f'\t{statuses[1]}: {statuses[4].upper()}\n'
                            f'\t{statuses[2]}: {statuses[5].upper()}\n')
-            check_answer(statuses, status)
+            status = check_answer(statuses, status)
             if status.isdigit():
                 status = statuses[int(status) + 2]
             note['status'] = status
@@ -156,6 +164,7 @@ def create_note():
 def save_note(new_note):
     global note_saver, note_id
     answer_for_save = input('Хотите сохранить заметку? (Да/Нет): ')
+    answer_for_save = check_answer(['ДА', 'НЕТ'], answer_for_save)
     if answer_for_save.upper() == 'ДА':
         if new_note in note_saver.values():
             answer_for_save = input('Такая заметка уже есть. Вы точно хотите её сохранить? (Да/Нет): ')
@@ -190,12 +199,15 @@ def display_notes(note_dict):
 # Функция удаления заметки
 def delete_note():
     global note_saver
+    if not note_saver:
+        print('Список заметок пуст, удалять нечего')
+        return
     delete_list_id = []
     answer_for_delete = input('Выберите критерий, по которому будете производить удаление\n'
                               '\t1. Пользователь\n'
                               '\t2. Заголовок\n'
                               'Введите номер пункта или критерий удаления текстом: ')
-    check_answer(['1', '2', 'ПОЛЬЗОВАТЕЛЬ', 'ЗАГОЛОВОК'], answer_for_delete)
+    answer_for_delete = check_answer(['1', '2', 'ПОЛЬЗОВАТЕЛЬ', 'ЗАГОЛОВОК'], answer_for_delete)
     if answer_for_delete.upper() in ['1', 'ПОЛЬЗОВАТЕЛЬ']:
         username = input('Введите имя пользователя, заметки которого хотите удалить: ')
         for ID, note in note_saver.items():
@@ -226,6 +238,9 @@ def delete_note():
 # Функция поиска заметки
 def search_notes(notes, keyword=None, status=None):
     search_dict = {}
+    if not note_saver:
+        print('Список заметок пуст, искать нечего')
+        return
     for ID, note in notes.items():
         search_list = str(note.values())
         if keyword and status:
@@ -243,32 +258,44 @@ def search_notes(notes, keyword=None, status=None):
     print(f"По вашему запросу {keyword} и {status}: {len(search_dict)}")
     display_notes(search_dict)
 
+# Функция цикличного меню с выбором действий
+def menu():
+    while True:
+        action_list = ['1', '2', '3', '4', '5', '6',
+                       'СОЗДАТЬ НОВУЮ ЗАМЕТКУ',
+                       'ПОСМОТРЕТЬ ВСЕ ЗАМЕТКИ',
+                       'ОБНОВИТЬ ЗАМЕТКИ',
+                       'УДАЛИТЬ ЗАМЕТКУ',
+                       'НАЙТИ ЗАМЕТКИ',
+                       'ВЫХОД']
+        action = input('Возможные действия:\n'
+                       '\t1. Создать новую заметку\n'
+                       '\t2. Посмотреть все заметки\n'
+                       '\t3. Обновить заметку\n'
+                       '\t4. Удалить заметку\n'
+                       '\t5. Найти заметки\n'
+                       '\t6. Выход\n'
+                       'Впишите номер действия или действие целиком и нажмите "Enter": ')
+        action = check_answer(action_list, action).upper()
+        if action in ['1', 'СОЗДАТЬ НОВУЮ ЗАМЕТКУ']:
+            note = create_note()
+            save_note(note)
+        elif action in ['2', 'ПОСМОТРЕТЬ ВСЕ ЗАМЕТКИ']:
+            display_notes(note_saver)
+        elif action in ['3', 'ОБНОВИТЬ ЗАМЕТКИ']:
+            update_note()
+        elif action in ['4', 'УДАЛИТЬ ЗАМЕТКУ']:
+            delete_note()
+        elif action in ['5', 'НАЙТИ ЗАМЕТКИ']:
+            key = input('Введите ключевое слово для поиска: ')
+            stat = input('Введите статус заметки для поиска: ')
+            search_notes(note_saver, key, stat)
+        else:
+            print('Завершение работы программы')
+            break
+    print('До свидания!')
 
 
 '''ОСНОВНОЙ БЛОК КОДА'''
 
-print('Добро пожаловать в менеджер заметок!\n')
-answer_for_create = input('Хотите создать новую заметку? (Да/Нет): ')
-while answer_for_create.upper() != "НЕТ":
-    check_answer(['ДА', 'НЕТ'], answer_for_create)
-    if answer_for_create.upper() == 'НЕТ':
-        break
-    else:
-        some_note = create_note()
-        save_note(some_note)
-    answer_for_remove = input('Хотите ли вы удалить какую-нибудь заметку? (Да/Нет): ')
-    check_answer(['ДА', 'НЕТ'], answer_for_remove)
-    if answer_for_remove.upper() == 'ДА':
-        delete_note()
-        print('Список сохраненных заметок:')
-        display_notes(note_saver)
-    answer_for_info = input('Хотите просмотреть заметки? (Да/Нет): ')
-    check_answer(['ДА', 'НЕТ'], answer_for_info)
-    if answer_for_info.upper() == 'ДА':
-        print('Список сохраненных заметок:')
-        display_notes(note_saver)
-    search_status = input('Введите статус заметки для поиска: ')
-    search_keyword = input('Введите ключевое слово для поиска: ')
-    search_notes(note_saver, search_keyword, search_status)
-    answer_for_create = input('Хотите создать новую заметку? (Да/Нет): ')
-print('До новых встреч!')
+menu()
