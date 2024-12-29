@@ -3,6 +3,12 @@
 # Подключение datetime для работы с датами
 import datetime
 
+# Подключение init библиотеки colorama для инициализации
+from colorama import init
+
+# Подключение изменения цвета текста, фона и стиля написания
+from colorama import Fore, Back, Style
+
 # Глобальная переменная словаря записок (ID(ключ):some_note(значение))
 note_saver = {}
 
