@@ -273,6 +273,7 @@ def save_notes_to_file(notes, filename):
             if key != 'titles':
                 f.write(f'{key}: {value}\n')
             else:
+                f.write(f'{key}:\n')
                 for title in note['titles']:
                     f.write(f'\t- {title}\n')
         f.write('-'*15 + '\n')
