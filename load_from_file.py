@@ -266,18 +266,73 @@ def search_notes(notes, keyword=None, status=None):
 
 # Функция записи списка заметок в файл
 def save_notes_to_file(notes, filename):
-    f = open(filename, 'w', encoding='UTF-8')
-    for ID, note in notes.items():
-        f.write(f'Заметка #{ID}\n')
-        for key, value in note.items():
-            if key != 'titles':
-                f.write(f'{key.capitalize()}: {value}\n')
-            else:
-                f.write(f'{key.capitalize()}:\n')
-                for title in note['titles']:
-                    f.write(f'\t- {title}\n')
-        f.write('-'*15 + '\n')
-    f.close()
+    try:
+        f = open(filename, 'w', encoding='UTF-8')
+        for ID, note in notes.items():
+            f.write(f'Заметка #{ID}\n')
+            for key, value in note.items():
+                if key != 'titles':
+                    f.write(f'{key.capitalize()}: {value}\n')
+                else:
+                    f.write(f'{key.capitalize()}:\n')
+                    for title in note['titles']:
+                        f.write(f'\t- {title}\n')
+            f.write('-'*20 + '\n')
+        f.close()
+    except FileNotFoundError:
+        print('Файла с таким именем не существует. Проверьте наличие файла или проверьте корректность ввода данных')
+    except UnicodeError:
+        print('Этот файл написан в другой кодировки - нет возможности для расшифровки')
+
+# Функция загрузки из файла
+def load_from_file(filename):
+    try:
+        with open(filename, 'r', encoding='UTF-8') as f:
+            for info in f:
+                if 'Заметка' in info:
+                    number = info[9:-1]
+                    note_saver[str(number)] = {}
+                if 'Username' in info:
+                    note_saver[str(number)]['username'] = info[10:-1]
+                if 'Content' in info:
+                    note_saver[str(number)]['content'] = info[9:-1]
+                if 'Created_date' in info:
+                    note_saver[str(number)]['created_date'] = datetime.datetime.strptime(info[14:-1], '%Y-%m-%d').date()
+                if 'Titles' in info:
+                    title_list = []
+                    info = f.readline()
+                    while '\t-' in info:
+                        title_list.append(info[3:-1])
+                        info = f.readline()
+                    note_saver[str(number)]['titles'] = title_list
+                if 'Issue_date' in info:
+                    note_saver[str(number)]['issue_date'] = datetime.datetime.strptime(info[12:-1], '%Y-%m-%d').date()
+                if 'Status' in info:
+                    note_saver[str(number)]['status'] = info[8:-1]
+    except FileNotFoundError:
+        print('Файла с таким именем не существует. Проверьте наличие файла или проверьте корректность ввода данных')
+    except UnicodeError:
+        print('Этот файл написан в другой кодировки - нет возможности для расшифровки')
+
+# Функция добавления данных в файл
+def  append_notes_to_file(notes, filename):
+    try:
+        with open(filename, 'a', encoding='UTF-8') as f:
+            for ID, note in notes:
+                f.write(f'Заметка #{ID}\n')
+                for key, value in note.items():
+                    if key != 'titles':
+                        f.write(f'{key.capitalize()}: {value}\n')
+                    else:
+                        f.write(f'{key.capitalize()}:\n')
+                        for title in note['titles']:
+                            f.write(f'\t- {title}\n')
+                f.write('-' * 20 + '\n')
+            f.close()
+    except FileNotFoundError:
+        print('Файла с таким именем не существует. Проверьте наличие файла или проверьте корректность ввода данных')
+    except UnicodeError:
+        print('Этот файл написан в другой кодировки - нет возможности для расшифровки')
 
 
 # Функция цикличного меню с выбором действий
@@ -322,3 +377,5 @@ def menu():
 
 menu()
 save_notes_to_file(note_saver, 'notesaver.txt')
+load_from_file('notesaver.txt')
+display_notes(note_saver)
