@@ -384,7 +384,7 @@ def menu():
 '''ОСНОВНОЙ БЛОК КОДА'''
 
 menu()
-append_notes_to_file(note_saver, 'сохранялка.txt')
-load_from_file('сохранялка.txt')
+append_notes_to_file(note_saver, '../сохранялка.txt')
+load_from_file('../сохранялка.txt')
 save_notes_json(note_saver, 'notesaver.json')
 display_notes(note_saver)
