@@ -76,12 +76,12 @@ def set_issue_date(note):
     issue_date = input('Введите дату истечения заметки в формате ГГГГ-ММ-ДД или ДД-ММ-ГГГГ: ')
     try:
         issue_date = datetime.datetime.strptime(issue_date, '%d-%m-%Y').date()
-        note['issue_date'] = issue_date
+        note['issue_date'] = issue_date.strftime('%d-%m-%Y')
         return True
     except ValueError:
         try:
             issue_date = datetime.datetime.strptime(issue_date, '%Y-%m-%d').date()
-            note['issue_date'] = issue_date
+            note['issue_date'] = issue_date.strftime('%Y-%m-%d')
             return True
         except ValueError:
             print('Неверно введённый формат даты, повторите ввод')
@@ -89,8 +89,11 @@ def set_issue_date(note):
 
 # Проверка дедлайна
 def check_deadline(note):
-    issue_date = note['issue_date']
-    created_date = note['created_date']
+    try:
+        issue_date = datetime.datetime.strptime(note['issue_date'], '%Y-%m-%d')
+    except ValueError:
+        issue_date = datetime.datetime.strptime(note['issue_date'], '%d-%m-%Y')
+    created_date = datetime.datetime.strptime(note['created_date'], '%Y-%m-%d')
     deadline_delta = (issue_date - created_date).days
     if deadline_delta > 2:
         print(f'\t- До дедлайна {deadline_delta} {days_write(deadline_delta)}')
@@ -163,7 +166,7 @@ def get_info(note):
 def create_note():
     new_note = {}
     set_info(new_note)
-    new_note['created_date'] = datetime.date.today()
+    new_note['created_date'] = datetime.date.today().strftime('%Y-%m-%d')
     add_titles(new_note)
     while not set_issue_date(new_note):
         print('Дата введена некорректно, повторите ввод')
@@ -182,7 +185,7 @@ def save_note(new_note):
                 note_id += 1
                 print('Вы сохранили ПОВТОРЯЮЩУЮСЯ заметку')
             else:
-                print('Повторяющаяся заметка не была удалена')
+                print('Повторяющаяся заметка не была сохранена')
         else:
             note_saver[str(note_id)] = new_note
             note_id += 1
@@ -300,7 +303,7 @@ def load_from_file(filename):
                 if 'Content' in info:
                     note_saver[str(number)]['content'] = info[9:-1]
                 if 'Created_date' in info:
-                    note_saver[str(number)]['created_date'] = datetime.datetime.strptime(info[14:-1], '%Y-%m-%d').date()
+                    note_saver[str(number)]['created_date'] = info[14:-1]
                 if 'Titles' in info:
                     title_list = []
                     info = f.readline()
@@ -309,7 +312,7 @@ def load_from_file(filename):
                         info = f.readline()
                     note_saver[str(number)]['titles'] = title_list
                 if 'Issue_date' in info:
-                    note_saver[str(number)]['issue_date'] = datetime.datetime.strptime(info[12:-1], '%Y-%m-%d').date()
+                    note_saver[str(number)]['issue_date'] = info[12:-1]
                 if 'Status' in info:
                     note_saver[str(number)]['status'] = info[8:-1]
     except FileNotFoundError:
@@ -384,7 +387,7 @@ def menu():
 '''ОСНОВНОЙ БЛОК КОДА'''
 
 menu()
-append_notes_to_file(note_saver, 'сохранялка.txt')
-load_from_file('сохранялка.txt')
+append_notes_to_file(note_saver, 'notesaver.txt')
+load_from_file('notesaver.txt')
 save_notes_json(note_saver, 'notesaver.json')
 display_notes(note_saver)
